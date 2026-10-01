@@ -13,7 +13,7 @@ class UntitledGame:
         pass
 
     def update(self, delta_time: float) -> None:
-        print(self._player.x, self._player.y)
+        pass
 
     def draw(self, drawer: DrawingAPI) -> None:
         self.draw_player(drawer)
