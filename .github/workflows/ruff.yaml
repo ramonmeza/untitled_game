@@ -7,5 +7,5 @@ jobs:
      - uses: actions/checkout@v3
      - uses: astral-sh/ruff-action@v3
        with:
-         args: --check
+         args: check
          fix_args: --fix
