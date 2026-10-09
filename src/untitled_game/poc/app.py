@@ -14,9 +14,6 @@ class App:
         try:
             while self._window.is_open():
                 self._game.update()
-                self._render()
+                self._renderer.render(self._game)
         finally:
             self._window.close()
-
-    def _render(self) -> None:
-        self._renderer.draw(self._game)

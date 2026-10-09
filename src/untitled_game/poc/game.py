@@ -3,7 +3,6 @@ from random import choice
 from .input_controller import InputController
 from .map import Map
 from .player import Player
-from .raylib_controller import RaylibController
 from .tile import Tile
 
 
@@ -21,13 +20,13 @@ class Game:
     TILE_MAP_ROWS: int = 10
     TILE_MAP_COLUMNS: int = 20
 
-    def __init__(self) -> None:
+    def __init__(self, controller: InputController) -> None:
         self.map: Map = generate_map(Game.TILE_MAP_ROWS, Game.TILE_MAP_COLUMNS)
         self.player: Player = Player()
-        self.player_controller: InputController = RaylibController()
+        self.player_controller: InputController = controller
 
     def move_player(self, input_vector: tuple[float, float]) -> None:
-        self.player.x = self.player.x + max(-1, min(input_vector[0], 1)) * 0.001
+        self.player.x = self.player.x + max(-1, min(input_vector[0], 1)) * 0.001  # this will change
         self.player.y = self.player.y + max(-1, min(input_vector[1], 1)) * 0.001
 
     def update(self) -> None:

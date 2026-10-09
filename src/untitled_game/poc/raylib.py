@@ -16,7 +16,7 @@ class RaylibRenderer:
             Tile.ROAD: raylib.GRAY,
         }
 
-    def draw(self, game: Game) -> None:
+    def render(self, game: Game) -> None:
         raylib.begin_drawing()
         raylib.clear_background(raylib.BLACK)
         self._draw_map(game.map)
@@ -68,3 +68,16 @@ class RaylibWindow:
 
     def close(self) -> None:
         raylib.close_window()
+
+
+class RaylibController:
+    def __init__(self) -> None:
+        pass
+
+    def get_input_vector(self) -> tuple[float, float]:
+        x = y = 0
+        x -= int(raylib.is_key_down(raylib.KeyboardKey.KEY_A))
+        x += int(raylib.is_key_down(raylib.KeyboardKey.KEY_D))
+        y -= int(raylib.is_key_down(raylib.KeyboardKey.KEY_W))
+        y += int(raylib.is_key_down(raylib.KeyboardKey.KEY_S))
+        return (x, y)

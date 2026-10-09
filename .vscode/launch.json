@@ -2,16 +2,26 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Module",
+            "name": "Untitled Game",
             "type": "debugpy",
             "request": "launch",
             "module": "untitled_game"
         },
         {
-            "name": "Proof of Concept",
+            "name": "Proof of Concept: Raylib Platform",
             "type": "debugpy",
             "request": "launch",
             "module": "untitled_game.poc"
+        },
+        {
+            "name": "Proof of Concept: ASCII Platform",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "untitled_game.poc",
+            "args": [
+                "--platform",
+                "ascii"
+            ]
         }
     ]
 }
