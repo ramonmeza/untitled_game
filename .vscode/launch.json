@@ -6,6 +6,12 @@
             "type": "debugpy",
             "request": "launch",
             "module": "untitled_game"
+        },
+        {
+            "name": "Proof of Concept",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "untitled_game.poc"
         }
     ]
 }
