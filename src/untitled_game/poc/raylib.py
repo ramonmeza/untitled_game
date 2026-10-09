@@ -44,17 +44,18 @@ class RaylibRenderer:
             self._draw_tile(row, column, tile)
 
     def _draw_ui(self, game: Game) -> None:
+        font_size: int = 20
         x = 10
         y = game.map.rows * self._tile_map_grid_size
         raylib.draw_text(
-            f"Map(rows={game.map.rows}, columns={game.map.columns})", x, y, 12, raylib.PINK
+            f"Map(rows={game.map.rows}, columns={game.map.columns})", x, y, font_size, raylib.PINK
         )
-        raylib.draw_text(str(game.player), x, y + 24, 12, raylib.PINK)
+        raylib.draw_text(str(game.player), x, y + (font_size * 2), font_size, raylib.PINK)
         raylib.draw_text(
             f"Input Vector: {game.player_controller.get_input_vector()!s}",
             x,
-            y + 48,
-            12,
+            y + (font_size * 4),
+            font_size,
             raylib.PINK,
         )
 

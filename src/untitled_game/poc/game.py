@@ -17,8 +17,8 @@ def generate_map(rows: int, columns: int) -> Map:
 
 
 class Game:
-    TILE_MAP_ROWS: int = 10
-    TILE_MAP_COLUMNS: int = 20
+    TILE_MAP_ROWS: int = 15
+    TILE_MAP_COLUMNS: int = 24
 
     def __init__(self, controller: InputController) -> None:
         self.map: Map = generate_map(Game.TILE_MAP_ROWS, Game.TILE_MAP_COLUMNS)
