@@ -169,7 +169,6 @@ class Game:
         self.entities: list[int] = []
         self.position_components: dict[int, PositionComponent] = {}
         self.box_components: dict[int, BoxComponent] = {}
-        self.render_system: RenderSystem = RenderSystem()
 
     def load(self) -> None:
         self._create_player()
@@ -192,7 +191,7 @@ class Game:
         self.game_state.player_input = game_input
 
     def update_systems(self) -> None:
-        self.render_system.update(self.position_components, self.box_components)
+        pass
 
     def tick(self, delta_time: float) -> None:
         self.get_input()
@@ -218,9 +217,7 @@ class Renderer:
 
     def __init__(self) -> None:
         self.ui_style: UIStyle = UIStyle()
-
-    def draw_game(self, game: Game) -> None:
-        pass
+        self.render_system: RenderSystem = RenderSystem()
 
     def _draw_ui_progress_bar(
         self,
@@ -235,6 +232,9 @@ class Renderer:
         raylib.draw_rectangle_lines(x, y, width, height, color)
         raylib.draw_rectangle(x, y, int(width * value), height, color)
         raylib.draw_text(text, x + 2, y, self.ui_style.font_size, self.ui_style.font_color)
+
+    def draw_game(self, game: Game) -> None:
+        self.render_system.update(game.position_components, game.box_components)
 
     def draw_ui(self, game: Game) -> None:
         x: int = 10
@@ -300,7 +300,7 @@ class Renderer:
 
     def render(self, game: Game) -> None:
         # camera data will eventually come from Game
-        camera = raylib.Camera2D()
+        camera = raylib.Camera2D(raylib.Vector2(0, 0), raylib.Vector2(0, 0), 0, 1.0)
 
         raylib.begin_drawing()
         raylib.clear_background(raylib.BLACK)
@@ -312,38 +312,8 @@ class Renderer:
         raylib.end_drawing()
 
 
-class FrameTimer:
-    def __init__(self, frame_interval: float = 0.0) -> None:
-        """
-        :rate:
-        :type rate: float
-        """
-        self.frame_interval: float = max(0, frame_interval)
-        self.prev_time: float = perf_counter()
-        self.next_frame_time: float = self.prev_time + self.frame_interval
-
-    def tick(self) -> float:
-        """
-        :rtype: float
-        :return: time since `tick()` was last called."""
-        now: float = perf_counter()
-        remaining: float = self.next_frame_time - now
-        if remaining > 0.0:
-            sleep(remaining)
-
-        now = perf_counter()
-        delta_time: float = now - self.prev_time
-        self.prev_time = now
-        self.next_frame_time += self.frame_interval
-
-        if self.next_frame_time < now:
-            self.next_frame_time = now + self.frame_interval
-
-        return delta_time
-
-
 def main() -> None:
-    GAME_TICK_RATE: float = 1 / 2
+    GAME_TICK_RATE: float = 1 / 60
     """
     Game updates at this rate interval no matter what.
     Rendering occurs as fast as possible.
