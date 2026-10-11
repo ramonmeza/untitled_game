@@ -1,9 +1,25 @@
 import math
+from dataclasses import dataclass, field
+from typing import Any
 from uuid import uuid4
 
 from .components import BoxComponent, PositionComponent
-from .core import Camera, Controller, GameInput, GameState
+from .controllers import KeyboardController
+from .core import Camera, Controller, GameAction
 from .systems import CameraFollowSystem
+
+
+@dataclass
+class GameState:
+    """Mutable values for the game."""
+
+    player_inputs: list[GameAction] = field(default_factory=list[GameAction])
+
+    def get_player_input_value(self, action: int) -> Any:
+        return next(
+            (game_input.value for game_input in self.player_inputs if game_input.action == action),
+            0,
+        )
 
 
 class Game:
@@ -11,7 +27,7 @@ class Game:
 
     def __init__(self) -> None:
         self.main_camera: Camera = Camera()
-        self.player_controller: Controller = Controller()
+        self.player_controller: Controller = KeyboardController()
         self.game_state: GameState = GameState()
         self.entities: list[int] = []
         self.position_components: dict[int, PositionComponent] = {}
@@ -39,8 +55,8 @@ class Game:
         return entity_id
 
     def get_input(self) -> None:
-        game_input: GameInput = self.player_controller.poll_input()
-        self.game_state.player_input = game_input
+        player_inputs: list[GameAction] = self.player_controller.poll_input()
+        self.game_state.player_inputs = player_inputs
 
     def update_systems(self, delta_time: float) -> None:
         assert self._player_entity_id != -1

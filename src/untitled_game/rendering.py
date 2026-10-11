@@ -1,6 +1,8 @@
+# pyright: reportUnknownMemberType=false
 import pyray as raylib
 
 from .components import BoxComponent, PositionComponent
+from .controllers import Actions
 from .core import Camera
 from .game import Game
 from .ui import UIStyle
@@ -73,19 +75,22 @@ class Renderer:
 
         raylib.draw_rectangle(bg_x, bg_y, bg_width, bg_height, raylib.DARKGRAY)
 
+        value: float = float(game.game_state.get_player_input_value(Actions.ACCELERATE))
         self._draw_ui_progress_bar(
-            "Accelerator", x, y, value=game.game_state.player_input.accelerator, color=raylib.GREEN
+            "Accelerator",
+            x,
+            y,
+            value=value,
+            color=raylib.GREEN,
         )
         y += self.ui_style.bar_height + self.ui_style.vspacing
 
-        self._draw_ui_progress_bar(
-            "Brake", x, y, value=game.game_state.player_input.brake, color=raylib.RED
-        )
+        value = float(game.game_state.get_player_input_value(Actions.BRAKE))
+        self._draw_ui_progress_bar("Brake", x, y, value=value, color=raylib.RED)
         y += self.ui_style.bar_height + self.ui_style.vspacing
 
-        self._draw_ui_progress_bar(
-            "E-Brake", x, y, value=game.game_state.player_input.ebrake, color=raylib.PURPLE
-        )
+        value = float(game.game_state.get_player_input_value(Actions.EBRAKE))
+        self._draw_ui_progress_bar("E-Brake", x, y, value=value, color=raylib.PURPLE)
         y += self.ui_style.bar_height + self.ui_style.vspacing
 
         # centered progress bar
@@ -93,28 +98,34 @@ class Renderer:
         raylib.draw_rectangle_lines(
             x, y, self.ui_style.bar_width, self.ui_style.bar_height, raylib.BLUE
         )
-        val: int = int(half_bar_width * game.game_state.player_input.steering)
-        if val > 0:
+        value = float(game.game_state.get_player_input_value(Actions.STEERING))
+        progress_bar_fill_width: int = int(half_bar_width * value)
+        if progress_bar_fill_width > 0:
             raylib.draw_rectangle(
                 x + half_bar_width,
                 y,
-                val,
+                progress_bar_fill_width,
                 self.ui_style.bar_height,
                 raylib.BLUE,
             )
         else:
-            abs_val: float = abs(val)
+            abs_progress_bar_fill_width: float = abs(progress_bar_fill_width)
             raylib.draw_rectangle(
-                x + half_bar_width - abs_val, y, abs_val, self.ui_style.bar_height, raylib.BLUE
+                x + half_bar_width - abs_progress_bar_fill_width,
+                y,
+                abs_progress_bar_fill_width,
+                self.ui_style.bar_height,
+                raylib.BLUE,
             )
         raylib.draw_text("Steering", x, y, self.ui_style.font_size, raylib.WHITE)
         y += self.ui_style.bar_height + self.ui_style.vspacing
 
+        value = float(game.game_state.get_player_input_value(Actions.ACTIVATE))
         self._draw_ui_progress_bar(
             "Activate",
             x,
             y,
-            value=float(game.game_state.player_input.activate),
+            value=value,
             color=raylib.ORANGE,
         )
 
