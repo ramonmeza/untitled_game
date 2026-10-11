@@ -1,12 +1,11 @@
-import math
 from dataclasses import dataclass, field
 from typing import Any
 from uuid import uuid4
 
-from .components import BoxComponent, PositionComponent
+from .components import BoxComponent, MovementComponent, PositionComponent
 from .controllers import KeyboardController
 from .core import Camera, Controller, GameAction
-from .systems import CameraFollowSystem
+from .systems import CameraFollowSystem, MovementSystem
 
 
 @dataclass
@@ -32,6 +31,7 @@ class Game:
         self.entities: list[int] = []
         self.position_components: dict[int, PositionComponent] = {}
         self.box_components: dict[int, BoxComponent] = {}
+        self.movement_components: dict[int, MovementComponent] = {}
 
         self.time_since_start: float = 0.0
         self._player_entity_id: int = -1
@@ -47,6 +47,7 @@ class Game:
         entity_id: int = self.create_entity()
         self.position_components[entity_id] = PositionComponent(250, 10)
         self.box_components[entity_id] = BoxComponent(200, 100)
+        self.movement_components[entity_id] = MovementComponent()
         return entity_id
 
     def create_entity(self) -> int:
@@ -63,9 +64,7 @@ class Game:
         player_pos: PositionComponent = self.position_components[self._player_entity_id]
 
         # sine movement, should be a component
-        sine_amp: float = 200.0
-        player_pos.y = math.sin(self.time_since_start) * sine_amp
-
+        MovementSystem.update(self.movement_components, self.position_components, delta_time)
         CameraFollowSystem.update(self.main_camera, player_pos, delta_time)
 
     def tick(self, delta_time: float) -> None:

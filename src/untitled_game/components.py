@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import IntEnum, auto
 
 
 @dataclass
@@ -13,6 +14,10 @@ class BoxComponent:
     height: int
 
 
+class MovementStyle(IntEnum):
+    SINE = auto()
+
+
 @dataclass
-class SineMovementComponent:
-    pass
+class MovementComponent:
+    movement_style: MovementStyle = MovementStyle.SINE
