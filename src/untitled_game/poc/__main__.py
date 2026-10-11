@@ -4,6 +4,14 @@ view for the renderer to visualize.
 
 `main()` is at the bottom. It manages the application lifecycle.
 
+Controls (DEBUG PHASE):
+W - Accelerator
+S - Brake
+A - Steer Left
+D - Steer Right
+SPACE - E-Brake
+E - Activate
+
 Requirements:
 - Game has a GameState
 - GameState is modified by GameInputs
@@ -16,10 +24,17 @@ Requirements:
 - Renderer manages rendering a frame from a Game.
 - Renderer will be able to render a GameState
 - Renderer will be able to render UI from a UIView
+
+Entity Component System:
+- Entities have IDs.
+- Components contain data.
+- Systems read and react to Components' data.
+- There are mappings between entities and their component data.
 """
 
 from dataclasses import dataclass, field
 from time import perf_counter, sleep
+from uuid import uuid4
 
 import pyray as raylib
 
@@ -117,21 +132,71 @@ class Controller:
         return game_input
 
 
+@dataclass
+class PositionComponent:
+    x: float = 0.0
+    y: float = 0.0
+
+
+@dataclass
+class BoxComponent:
+    width: int
+    height: int
+
+
+class RenderSystem:
+    def update(
+        self,
+        position_components: dict[int, PositionComponent],
+        box_components: dict[int, BoxComponent],
+    ) -> None:
+        for entity_id, box_comp in box_components.items():
+            pos_comp = position_components.get(entity_id, None)
+            if pos_comp is None:
+                continue
+
+            raylib.draw_rectangle(
+                int(pos_comp.x), int(pos_comp.y), box_comp.width, box_comp.height, raylib.PINK
+            )
+
+
 class Game:
     """Manages the GameState, which is modified by Controllers."""
 
     def __init__(self) -> None:
         self.player_controller: Controller = Controller()
         self.game_state: GameState = GameState()
+        self.entities: list[int] = []
+        self.position_components: dict[int, PositionComponent] = {}
+        self.box_components: dict[int, BoxComponent] = {}
+        self.render_system: RenderSystem = RenderSystem()
 
-    def update(self, delta_time: float) -> None:
+    def load(self) -> None:
+        self._create_player()
+
+    def generate_entity_id(self) -> int:
+        return uuid4().int
+
+    def _create_player(self) -> None:
+        entity_id: int = self.create_entity()
+        self.position_components[entity_id] = PositionComponent(100, 200)
+        self.box_components[entity_id] = BoxComponent(200, 100)
+
+    def create_entity(self) -> int:
+        entity_id: int = self.generate_entity_id()
+        self.entities.append(entity_id)
+        return entity_id
+
+    def get_input(self) -> None:
         game_input: GameInput = self.player_controller.poll_input()
         self.game_state.player_input = game_input
 
-        # pass input into systems that require input
-        # run through all systems which modify GameState
-        # ...
-        # profit
+    def update_systems(self) -> None:
+        self.render_system.update(self.position_components, self.box_components)
+
+    def update(self, delta_time: float) -> None:
+        self.get_input()
+        self.update_systems()
 
 
 @dataclass
@@ -283,7 +348,7 @@ def main() -> None:
     renderer: Renderer = Renderer()
     frame_timer: FrameTimer = FrameTimer(1 / FPS_LOCK)
     game: Game = Game()
-
+    game.load()
     while not raylib.window_should_close():
         delta_time: float = frame_timer.tick()
         game.update(delta_time)
