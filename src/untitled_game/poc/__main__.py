@@ -134,11 +134,25 @@ class Game:
         # profit
 
 
+@dataclass
+class UIStyle:
+    font_color: raylib.Color = field(default=raylib.WHITE)
+    bar_height: int = 12
+    bar_width: int = 100
+    font_size: int = 12
+    vspacing: int = 2
+    vpadding: int = 4
+    hpadding: int = 6
+
+
 class Renderer:
     """
     Rendering the UI and GameState. Currently tightly coupled to raylib. We can
     think of an abstraction layer once we need it.
     """
+
+    def __init__(self) -> None:
+        self.ui_style: UIStyle = UIStyle()
 
     def draw_game(self, game: Game) -> None:
         pass
@@ -148,109 +162,75 @@ class Renderer:
         text: str,
         x: int,
         y: int,
-        width: int = 12,
-        height: int = 100,
+        width: int = 100,
+        height: int = 12,
         value: float = 0,
-        font_color: raylib.Color = raylib.WHITE,
-        font_size: int = 12,
-        color: raylib.Color = raylib.GREEN,
+        color: raylib.Color = raylib.BLANK,
     ) -> None:
         raylib.draw_rectangle_lines(x, y, width, height, color)
-        raylib.draw_rectangle(
-            x,
-            y,
-            int(width * value),
-            height,
-            color,
-        )
-        raylib.draw_text(text, x + 2, y, font_size, font_color)
+        raylib.draw_rectangle(x, y, int(width * value), height, color)
+        raylib.draw_text(text, x + 2, y, self.ui_style.font_size, self.ui_style.font_color)
 
     def draw_ui(self, game: Game) -> None:
         x: int = 10
         y: int = 40
-        bar_height: int = 12
-        bar_width: int = 100
-        font_size: int = 12
-        vspacing: int = 2
-        vpadding: int = 4
-        hpadding: int = 6
         num_bars: int = 5
-        bg_x = x - hpadding
-        bg_y = y - vpadding
-        bg_width: int = hpadding + bar_width + hpadding
+        bg_x = x - self.ui_style.hpadding
+        bg_y = y - self.ui_style.vpadding
+        bg_width: int = self.ui_style.hpadding + self.ui_style.bar_width + self.ui_style.hpadding
         bg_height: int = (
-            vpadding + (bar_height * num_bars) + (num_bars * vspacing) - vspacing + vpadding
+            self.ui_style.vpadding
+            + (self.ui_style.bar_height * num_bars)
+            + (num_bars * self.ui_style.vspacing)
+            - self.ui_style.vspacing
+            + self.ui_style.vpadding
         )
 
         raylib.draw_rectangle(bg_x, bg_y, bg_width, bg_height, raylib.DARKGRAY)
 
         self._draw_ui_progress_bar(
-            "Accelerator",
-            x,
-            y,
-            bar_width,
-            bar_height,
-            game.game_state.player_input.accelerator,
-            raylib.WHITE,
-            font_size,
-            raylib.GREEN,
+            "Accelerator", x, y, value=game.game_state.player_input.accelerator, color=raylib.GREEN
         )
-        y += bar_height + vspacing
+        y += self.ui_style.bar_height + self.ui_style.vspacing
 
         self._draw_ui_progress_bar(
-            "Brake",
-            x,
-            y,
-            bar_width,
-            bar_height,
-            game.game_state.player_input.brake,
-            raylib.WHITE,
-            font_size,
-            raylib.RED,
+            "Brake", x, y, value=game.game_state.player_input.brake, color=raylib.RED
         )
-        y += bar_height + vspacing
+        y += self.ui_style.bar_height + self.ui_style.vspacing
 
         self._draw_ui_progress_bar(
-            "E-Brake",
-            x,
-            y,
-            bar_width,
-            bar_height,
-            game.game_state.player_input.ebrake,
-            raylib.WHITE,
-            font_size,
-            raylib.PURPLE,
+            "E-Brake", x, y, value=game.game_state.player_input.ebrake, color=raylib.PURPLE
         )
-        y += bar_height + vspacing
+        y += self.ui_style.bar_height + self.ui_style.vspacing
 
         # centered progress bar
-        half_bar_width: int = int(bar_width / 2)
-        raylib.draw_rectangle_lines(x, y, bar_width, bar_height, raylib.BLUE)
+        half_bar_width: int = int(self.ui_style.bar_width / 2)
+        raylib.draw_rectangle_lines(
+            x, y, self.ui_style.bar_width, self.ui_style.bar_height, raylib.BLUE
+        )
         val: int = int(half_bar_width * game.game_state.player_input.steering)
         if val > 0:
             raylib.draw_rectangle(
                 x + half_bar_width,
                 y,
                 val,
-                bar_height,
+                self.ui_style.bar_height,
                 raylib.BLUE,
             )
         else:
             abs_val: float = abs(val)
-            raylib.draw_rectangle(x + half_bar_width - abs_val, y, abs_val, bar_height, raylib.BLUE)
-        raylib.draw_text("Steering", x, y, font_size, raylib.WHITE)
-        y += bar_height + vspacing
+            raylib.draw_rectangle(
+                x + half_bar_width - abs_val, y, abs_val, self.ui_style.bar_height, raylib.BLUE
+            )
+        raylib.draw_text("Steering", x, y, self.ui_style.font_size, raylib.WHITE)
+        y += self.ui_style.bar_height + self.ui_style.vspacing
 
         self._draw_ui_progress_bar(
             "Activate",
             x,
             y,
-            bar_width,
-            bar_height,
-            float(game.game_state.player_input.activate),
-            raylib.WHITE,
-            font_size,
-            raylib.ORANGE,
+            value=float(game.game_state.player_input.activate),
+            color=raylib.ORANGE,
         )
 
     def render(self, game: Game) -> None:
@@ -267,7 +247,7 @@ class Renderer:
         raylib.end_drawing()
 
 
-class Timer:
+class FrameTimer:
     def __init__(self, frame_interval: float = 0.0) -> None:
         """
         :rate:
@@ -301,7 +281,7 @@ def main() -> None:
     FPS_LOCK: int = 60
     raylib.init_window(800, 600, "Proof of Concept")
     renderer: Renderer = Renderer()
-    frame_timer: Timer = Timer(1 / FPS_LOCK)
+    frame_timer: FrameTimer = FrameTimer(1 / FPS_LOCK)
     game: Game = Game()
 
     while not raylib.window_should_close():
