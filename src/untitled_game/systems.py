@@ -29,11 +29,15 @@ class MovementSystem:
             pos_comp = positions_components.get(entity_id, None)
             if pos_comp is None:
                 continue
+            cls.apply_movement(movement_comp.movement_style, pos_comp)
 
-            # apply movement
-            match movement_comp.movement_style:
-                case MovementStyle.SINE:
-                    sine_amp: float = 200.0
-                    pos_comp.y = sine(cls.time_since_start) * sine_amp
-                case _:
-                    raise NotImplementedError
+    @classmethod
+    def apply_movement(
+        cls, movement_style: MovementStyle, position_comp: PositionComponent
+    ) -> None:
+        match movement_style:
+            case MovementStyle.SINE:
+                sine_amp: float = 200.0
+                position_comp.y = sine(cls.time_since_start) * sine_amp
+            case _:
+                raise NotImplementedError

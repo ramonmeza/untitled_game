@@ -33,11 +33,9 @@ class Game:
         self.box_components: dict[int, BoxComponent] = {}
         self.movement_components: dict[int, MovementComponent] = {}
 
-        self.time_since_start: float = 0.0
         self._player_entity_id: int = -1
 
     def load(self) -> None:
-        self.time_since_start = 0.0
         self._player_entity_id = self._create_player()
 
     def generate_entity_id(self) -> int:
@@ -62,12 +60,9 @@ class Game:
     def update_systems(self, delta_time: float) -> None:
         assert self._player_entity_id != -1
         player_pos: PositionComponent = self.position_components[self._player_entity_id]
-
-        # sine movement, should be a component
         MovementSystem.update(self.movement_components, self.position_components, delta_time)
         CameraFollowSystem.update(self.main_camera, player_pos, delta_time)
 
     def tick(self, delta_time: float) -> None:
-        self.time_since_start += delta_time
         self.get_input()
         self.update_systems(delta_time)
