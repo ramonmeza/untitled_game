@@ -194,7 +194,7 @@ class Game:
     def update_systems(self) -> None:
         self.render_system.update(self.position_components, self.box_components)
 
-    def update(self, delta_time: float) -> None:
+    def tick(self, delta_time: float) -> None:
         self.get_input()
         self.update_systems()
 
@@ -343,15 +343,27 @@ class FrameTimer:
 
 
 def main() -> None:
-    FPS_LOCK: int = 60
+    GAME_TICK_RATE: float = 1 / 2
+    """
+    Game updates at this rate interval no matter what.
+    Rendering occurs as fast as possible.
+    So, FPS could be high, but depending on `GAME_TICK_RATE`, the game state will only change so fast.
+    Rendering *could* handle interpolation of the frame data, which would be so cool. I think you'd 
+    need a frame buffer and alway have a 1 frame latency.
+    """
+
     raylib.init_window(800, 600, "Proof of Concept")
     renderer: Renderer = Renderer()
-    frame_timer: FrameTimer = FrameTimer(1 / FPS_LOCK)
     game: Game = Game()
     game.load()
+
+    time_accumulator: float = 0.0
     while not raylib.window_should_close():
-        delta_time: float = frame_timer.tick()
-        game.update(delta_time)
+        delta_time: float = raylib.get_frame_time()
+        time_accumulator += delta_time
+        while time_accumulator >= GAME_TICK_RATE:
+            game.tick(GAME_TICK_RATE)
+            time_accumulator -= GAME_TICK_RATE
         renderer.render(game)
 
     raylib.close_window()
