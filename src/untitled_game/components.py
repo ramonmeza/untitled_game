@@ -1,5 +1,6 @@
-from dataclasses import dataclass
-from enum import IntEnum, auto
+from dataclasses import dataclass, field
+
+from .controller import Controller, GameAction
 
 
 @dataclass
@@ -14,10 +15,12 @@ class BoxComponent:
     height: int
 
 
-class MovementStyle(IntEnum):
-    SINE = auto()
+@dataclass
+class MovementComponent:
+    pass
 
 
 @dataclass
-class MovementComponent:
-    movement_style: MovementStyle = MovementStyle.SINE
+class ControllerComponent:
+    controller: Controller
+    actions: list[GameAction] = field(default_factory=list[GameAction])

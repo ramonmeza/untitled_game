@@ -1,6 +1,6 @@
-from .components import MovementComponent, MovementStyle, PositionComponent
-from .core import Camera
-from .utils import sine, vector2_lerp
+from .camera import Camera
+from .components import ControllerComponent, MovementComponent, PositionComponent
+from .utils import vector2_lerp
 
 
 class CameraFollowSystem:
@@ -21,6 +21,7 @@ class MovementSystem:
         cls,
         movement_components: dict[int, MovementComponent],
         positions_components: dict[int, PositionComponent],
+        controller_components: dict[int, ControllerComponent],
         delta_time: float,
     ) -> None:
         cls.time_since_start += delta_time
@@ -29,15 +30,23 @@ class MovementSystem:
             pos_comp = positions_components.get(entity_id, None)
             if pos_comp is None:
                 continue
-            cls.apply_movement(movement_comp.movement_style, pos_comp)
+
+            controller_comp = controller_components.get(entity_id, None)
+            if controller_comp is None:
+                continue
+            cls.apply_movement(pos_comp, controller_comp)
 
     @classmethod
     def apply_movement(
-        cls, movement_style: MovementStyle, position_comp: PositionComponent
+        cls,
+        position_comp: PositionComponent,
+        controller_comp: ControllerComponent,
     ) -> None:
-        match movement_style:
-            case MovementStyle.SINE:
-                sine_amp: float = 200.0
-                position_comp.y = sine(cls.time_since_start) * sine_amp
-            case _:
-                raise NotImplementedError
+        pass
+
+
+class ActionSystem:
+    @classmethod
+    def update(cls, controller_components: dict[int, ControllerComponent]) -> None:
+        for controller_comp in controller_components.values():
+            controller_comp.actions = controller_comp.controller.poll_actions()

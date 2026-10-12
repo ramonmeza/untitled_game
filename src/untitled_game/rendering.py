@@ -1,9 +1,9 @@
 # pyright: reportUnknownMemberType=false
 import pyray as raylib
 
+from .actions import Actions
+from .camera import Camera
 from .components import BoxComponent, PositionComponent
-from .controllers import Actions
-from .core import Camera
 from .game import Game
 from .ui import UIStyle
 
@@ -75,7 +75,9 @@ class Renderer:
 
         raylib.draw_rectangle(bg_x, bg_y, bg_width, bg_height, raylib.DARKGRAY)
 
-        value: float = float(game.game_state.get_player_input_value(Actions.ACCELERATE))
+        value: float = float(
+            game.get_action_value(game.get_player_entity_id(), Actions.ACCELERATE, 0.0)
+        )
         self._draw_ui_progress_bar(
             "Accelerator",
             x,
@@ -85,11 +87,11 @@ class Renderer:
         )
         y += self.ui_style.bar_height + self.ui_style.vspacing
 
-        value = float(game.game_state.get_player_input_value(Actions.BRAKE))
+        value = float(game.get_action_value(game.get_player_entity_id(), Actions.BRAKE, 0.0))
         self._draw_ui_progress_bar("Brake", x, y, value=value, color=raylib.RED)
         y += self.ui_style.bar_height + self.ui_style.vspacing
 
-        value = float(game.game_state.get_player_input_value(Actions.EBRAKE))
+        value = float(game.get_action_value(game.get_player_entity_id(), Actions.EBRAKE, 0.0))
         self._draw_ui_progress_bar("E-Brake", x, y, value=value, color=raylib.PURPLE)
         y += self.ui_style.bar_height + self.ui_style.vspacing
 
@@ -98,7 +100,7 @@ class Renderer:
         raylib.draw_rectangle_lines(
             x, y, self.ui_style.bar_width, self.ui_style.bar_height, raylib.BLUE
         )
-        value = float(game.game_state.get_player_input_value(Actions.STEERING))
+        value = float(game.get_action_value(game.get_player_entity_id(), Actions.STEERING, 0.0))
         progress_bar_fill_width: int = int(half_bar_width * value)
         if progress_bar_fill_width > 0:
             raylib.draw_rectangle(
@@ -120,7 +122,7 @@ class Renderer:
         raylib.draw_text("Steering", x, y, self.ui_style.font_size, raylib.WHITE)
         y += self.ui_style.bar_height + self.ui_style.vspacing
 
-        value = float(game.game_state.get_player_input_value(Actions.ACTIVATE))
+        value = float(game.get_action_value(game.get_player_entity_id(), Actions.ACTIVATE, False))
         self._draw_ui_progress_bar(
             "Activate",
             x,
