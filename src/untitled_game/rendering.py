@@ -1,7 +1,10 @@
+# pyright: reportUnknownMemberType=false
 import pyray as raylib
 
+from .actions import Actions
+from .camera import Camera
 from .components import BoxComponent, PositionComponent
-from .core import Camera
+from .ecs import ECS
 from .game import Game
 from .ui import UIStyle
 
@@ -54,7 +57,7 @@ class Renderer:
 
     def draw_game(self, game: Game) -> None:
         self.draw_background_grid()
-        self.render_system.update(game.position_components, game.box_components)
+        self.render_system.update(game.ecs)
 
     def draw_ui(self, game: Game) -> None:
         x: int = 10
@@ -73,19 +76,24 @@ class Renderer:
 
         raylib.draw_rectangle(bg_x, bg_y, bg_width, bg_height, raylib.DARKGRAY)
 
+        value: float = float(
+            game.get_action_value(game.get_player_entity_id(), Actions.ACCELERATE, 0.0)
+        )
         self._draw_ui_progress_bar(
-            "Accelerator", x, y, value=game.game_state.player_input.accelerator, color=raylib.GREEN
+            "Accelerator",
+            x,
+            y,
+            value=value,
+            color=raylib.GREEN,
         )
         y += self.ui_style.bar_height + self.ui_style.vspacing
 
-        self._draw_ui_progress_bar(
-            "Brake", x, y, value=game.game_state.player_input.brake, color=raylib.RED
-        )
+        value = float(game.get_action_value(game.get_player_entity_id(), Actions.BRAKE, 0.0))
+        self._draw_ui_progress_bar("Brake", x, y, value=value, color=raylib.RED)
         y += self.ui_style.bar_height + self.ui_style.vspacing
 
-        self._draw_ui_progress_bar(
-            "E-Brake", x, y, value=game.game_state.player_input.ebrake, color=raylib.PURPLE
-        )
+        value = float(game.get_action_value(game.get_player_entity_id(), Actions.EBRAKE, 0.0))
+        self._draw_ui_progress_bar("E-Brake", x, y, value=value, color=raylib.PURPLE)
         y += self.ui_style.bar_height + self.ui_style.vspacing
 
         # centered progress bar
@@ -93,28 +101,34 @@ class Renderer:
         raylib.draw_rectangle_lines(
             x, y, self.ui_style.bar_width, self.ui_style.bar_height, raylib.BLUE
         )
-        val: int = int(half_bar_width * game.game_state.player_input.steering)
-        if val > 0:
+        value = float(game.get_action_value(game.get_player_entity_id(), Actions.STEERING, 0.0))
+        progress_bar_fill_width: int = int(half_bar_width * value)
+        if progress_bar_fill_width > 0:
             raylib.draw_rectangle(
                 x + half_bar_width,
                 y,
-                val,
+                progress_bar_fill_width,
                 self.ui_style.bar_height,
                 raylib.BLUE,
             )
         else:
-            abs_val: float = abs(val)
+            abs_progress_bar_fill_width: float = abs(progress_bar_fill_width)
             raylib.draw_rectangle(
-                x + half_bar_width - abs_val, y, abs_val, self.ui_style.bar_height, raylib.BLUE
+                x + half_bar_width - abs_progress_bar_fill_width,
+                y,
+                abs_progress_bar_fill_width,
+                self.ui_style.bar_height,
+                raylib.BLUE,
             )
         raylib.draw_text("Steering", x, y, self.ui_style.font_size, raylib.WHITE)
         y += self.ui_style.bar_height + self.ui_style.vspacing
 
+        value = float(game.get_action_value(game.get_player_entity_id(), Actions.ACTIVATE, False))
         self._draw_ui_progress_bar(
             "Activate",
             x,
             y,
-            value=float(game.game_state.player_input.activate),
+            value=value,
             color=raylib.ORANGE,
         )
 
@@ -136,15 +150,15 @@ class Renderer:
 
 
 class RenderSystem:
-    def update(
-        self,
-        position_components: dict[int, PositionComponent],
-        box_components: dict[int, BoxComponent],
-    ) -> None:
-        for entity_id, box_comp in box_components.items():
-            pos_comp = position_components.get(entity_id, None)
-            if pos_comp is None:
-                continue
+    def update(self, ecs: ECS) -> None:
+        entities_with_renderables: list[int] = ecs.get_all_entities_with_components(
+            BoxComponent, PositionComponent
+        )
+        for entity_id in entities_with_renderables:
+            pos_comp: PositionComponent = ecs.get_components_of_type(entity_id, PositionComponent)[
+                0
+            ]
+            box_comp: BoxComponent = ecs.get_components_of_type(entity_id, BoxComponent)[0]
 
             raylib.draw_rectangle(
                 int(pos_comp.x), int(pos_comp.y), box_comp.width, box_comp.height, raylib.PINK

@@ -1,58 +1,65 @@
-import math
-from uuid import uuid4
+from typing import Any
 
-from .components import BoxComponent, PositionComponent
-from .core import Camera, Controller, GameInput, GameState
-from .systems import CameraFollowSystem
+from .camera import Camera
+from .components import BoxComponent, ControllerComponent, MovementComponent, PositionComponent
+from .controllers import KeyboardController
+from .ecs import ECS
+from .systems import ActionSystem, CameraFollowSystem, MovementSystem
 
 
 class Game:
-    """Manages the GameState, which is modified by Controllers."""
+    """Manages the ECS and gameplay systems."""
 
     def __init__(self) -> None:
         self.main_camera: Camera = Camera()
-        self.player_controller: Controller = Controller()
-        self.game_state: GameState = GameState()
-        self.entities: list[int] = []
-        self.position_components: dict[int, PositionComponent] = {}
-        self.box_components: dict[int, BoxComponent] = {}
-
-        self.time_since_start: float = 0.0
+        self.ecs: ECS = ECS()
         self._player_entity_id: int = -1
 
     def load(self) -> None:
-        self.time_since_start = 0.0
         self._player_entity_id = self._create_player()
 
-    def generate_entity_id(self) -> int:
-        return uuid4().int
+    def get_player_entity_id(self) -> int:
+        return self._player_entity_id
+
+    def get_action_value(self, entity_id: int, action: int, default: Any = None) -> Any:
+        controller_comps = self.ecs.get_components_of_type(entity_id, ControllerComponent)
+        if len(controller_comps) == 0:
+            return None
+
+        controller_comp = controller_comps[0]
+        value: Any = next(
+            (
+                action_item.value
+                for action_item in controller_comp.actions
+                if action_item.action == action
+            ),
+            default,
+        )
+        return value
 
     def _create_player(self) -> int:
-        entity_id: int = self.create_entity()
-        self.position_components[entity_id] = PositionComponent(250, 10)
-        self.box_components[entity_id] = BoxComponent(200, 100)
+        entity_id: int = self.ecs.create_entity()
+        self.ecs.add_component(entity_id, PositionComponent, 250, 10)
+        self.ecs.add_component(entity_id, BoxComponent, 200, 100)
+        self.ecs.add_component(entity_id, MovementComponent)
+        self.ecs.add_component(entity_id, ControllerComponent, KeyboardController())
         return entity_id
-
-    def create_entity(self) -> int:
-        entity_id: int = self.generate_entity_id()
-        self.entities.append(entity_id)
-        return entity_id
-
-    def get_input(self) -> None:
-        game_input: GameInput = self.player_controller.poll_input()
-        self.game_state.player_input = game_input
 
     def update_systems(self, delta_time: float) -> None:
-        assert self._player_entity_id != -1
-        player_pos: PositionComponent = self.position_components[self._player_entity_id]
+        # i do a lot filtering of entities by components. probably not optimal, but idk
+        player_pos: PositionComponent = self.ecs.get_components_of_type(
+            self._player_entity_id, PositionComponent
+        )[0]
+        controller_components: list[ControllerComponent] = self.ecs.get_all_components_of_type(
+            ControllerComponent
+        )
+        ActionSystem.update(controller_components)
 
-        # sine movement, should be a component
-        sine_amp: float = 200.0
-        player_pos.y = math.sin(self.time_since_start) * sine_amp
-
+        movables = self.ecs.get_all_entities_with_components(
+            MovementComponent, PositionComponent, ControllerComponent
+        )
+        MovementSystem.update(self.ecs, movables, delta_time)
         CameraFollowSystem.update(self.main_camera, player_pos, delta_time)
 
     def tick(self, delta_time: float) -> None:
-        self.time_since_start += delta_time
-        self.get_input()
         self.update_systems(delta_time)

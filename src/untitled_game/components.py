@@ -1,10 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-
-@dataclass
-class PositionComponent:
-    x: float = 0.0
-    y: float = 0.0
+from .controller import Controller, GameAction
 
 
 @dataclass
@@ -14,5 +10,17 @@ class BoxComponent:
 
 
 @dataclass
-class SineMovementComponent:
+class ControllerComponent:
+    controller: Controller
+    actions: list[GameAction] = field(default_factory=list[GameAction])
+
+
+@dataclass
+class MovementComponent:
     pass
+
+
+@dataclass
+class PositionComponent:
+    x: float = 0.0
+    y: float = 0.0
