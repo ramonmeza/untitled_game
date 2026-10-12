@@ -4,6 +4,7 @@ import pyray as raylib
 from .actions import Actions
 from .camera import Camera
 from .components import BoxComponent, PositionComponent
+from .ecs import ECS
 from .game import Game
 from .ui import UIStyle
 
@@ -56,7 +57,7 @@ class Renderer:
 
     def draw_game(self, game: Game) -> None:
         self.draw_background_grid()
-        self.render_system.update(game.position_components, game.box_components)
+        self.render_system.update(game.ecs)
 
     def draw_ui(self, game: Game) -> None:
         x: int = 10
@@ -149,15 +150,15 @@ class Renderer:
 
 
 class RenderSystem:
-    def update(
-        self,
-        position_components: dict[int, PositionComponent],
-        box_components: dict[int, BoxComponent],
-    ) -> None:
-        for entity_id, box_comp in box_components.items():
-            pos_comp = position_components.get(entity_id, None)
-            if pos_comp is None:
-                continue
+    def update(self, ecs: ECS) -> None:
+        entities_with_renderables: list[int] = ecs.get_all_entities_with_components(
+            BoxComponent, PositionComponent
+        )
+        for entity_id in entities_with_renderables:
+            pos_comp: PositionComponent = ecs.get_components_of_type(entity_id, PositionComponent)[
+                0
+            ]
+            box_comp: BoxComponent = ecs.get_components_of_type(entity_id, BoxComponent)[0]
 
             raylib.draw_rectangle(
                 int(pos_comp.x), int(pos_comp.y), box_comp.width, box_comp.height, raylib.PINK

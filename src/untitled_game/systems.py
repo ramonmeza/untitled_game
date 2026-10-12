@@ -1,5 +1,6 @@
 from .camera import Camera
 from .components import ControllerComponent, MovementComponent, PositionComponent
+from .ecs import ECS
 from .utils import vector2_lerp
 
 
@@ -19,22 +20,17 @@ class MovementSystem:
     @classmethod
     def update(
         cls,
-        movement_components: dict[int, MovementComponent],
-        positions_components: dict[int, PositionComponent],
-        controller_components: dict[int, ControllerComponent],
+        ecs: ECS,
+        movables: list[int],
         delta_time: float,
     ) -> None:
         cls.time_since_start += delta_time
 
-        for entity_id, movement_comp in movement_components.items():
-            pos_comp = positions_components.get(entity_id, None)
-            if pos_comp is None:
-                continue
-
-            controller_comp = controller_components.get(entity_id, None)
-            if controller_comp is None:
-                continue
-            cls.apply_movement(pos_comp, controller_comp)
+        for entity_id in movables:
+            _movement_comp = ecs.get_components_of_type(entity_id, MovementComponent)[0]
+            position_comp = ecs.get_components_of_type(entity_id, PositionComponent)[0]
+            controller_comp = ecs.get_components_of_type(entity_id, ControllerComponent)[0]
+            cls.apply_movement(position_comp, controller_comp)
 
     @classmethod
     def apply_movement(
@@ -47,6 +43,6 @@ class MovementSystem:
 
 class ActionSystem:
     @classmethod
-    def update(cls, controller_components: dict[int, ControllerComponent]) -> None:
-        for controller_comp in controller_components.values():
+    def update(cls, controller_components: list[ControllerComponent]) -> None:
+        for controller_comp in controller_components:
             controller_comp.actions = controller_comp.controller.poll_actions()
