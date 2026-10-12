@@ -18,8 +18,22 @@ uv run pyreverse -o mmd .\src\untitled_game
 ### Classes
 ```mermaid
 classDiagram
-  class Actions {
+  class ActionEmitter {
+    poll_actions() list[ActionValue]
+  }
+  class ActionEmitterComponent {
+    action_emitter
+    actions : list[ActionValue]
+  }
+  class ActionID {
     name
+  }
+  class ActionSystem {
+    update(emitter_comps: list[ActionEmitterComponent]) None
+  }
+  class ActionValue {
+    id
+    value : Any
   }
   class BoxComponent {
     height : int
@@ -32,52 +46,46 @@ classDiagram
   class CameraFollowSystem {
     update(camera: Camera, target: PositionComponent, delta_time: float) None
   }
-  class Controller {
-    poll_input() list[GameAction]
-  }
-  class Game {
-    box_components : dict[int, BoxComponent]
+  class ECS {
+    components : dict[ComponentsTypes, list[EntityComponentPair]]
     entities : list[int]
-    game_state
-    main_camera
-    movement_components : dict[int, MovementComponent]
-    player_controller
-    position_components : dict[int, PositionComponent]
-    time_since_start : float
+    add_component(entity_id: int, component_cls: ComponentsTypes) None
     create_entity() int
     generate_entity_id() int
-    get_input() None
+    get_all_components_of_type(component_cls: type[T]) list[T]
+    get_all_entities_with_components() list[int]
+    get_components(entity_id: int) list[Components]
+    get_components_of_type(entity_id: int, component_cls: type[T]) list[T]
+  }
+  class EntityComponentPair {
+    component
+    entity_id : int
+  }
+  class Game {
+    ecs
+    main_camera
+    get_action_value(entity_id: int, action: int, default: Any) Any
+    get_player_entity_id() int
     load() None
     tick(delta_time: float) None
     update_systems(delta_time: float) None
   }
-  class GameAction {
-    action : int
-    value : Any
-  }
-  class GameState {
-    player_inputs : list[GameAction]
-    get_player_input_value(action: int) Any
-  }
-  class KeyboardController {
-    poll_input() list[GameAction]
+  class KeyboardActionEmitter {
+    poll_actions() list[ActionValue]
   }
   class MovementComponent {
-    movement_style
-  }
-  class MovementStyle {
-    name
   }
   class MovementSystem {
     time_since_start : float
-    update(movement_components: dict[int, MovementComponent], positions_components: dict[int, PositionComponent], delta_time: float) None
+    apply_movement(position_comp: PositionComponent, emitter_comp: ActionEmitterComponent)* None
+    update(ecs: ECS, movables: list[int], delta_time: float) None
   }
   class PositionComponent {
     x : float
     y : float
   }
   class RenderSystem {
-    update(position_components: dict[int, PositionComponent], box_components: dict[int, BoxComponent]) None
+    update(ecs: ECS) None
   }
   class Renderer {
     camera
@@ -98,14 +106,11 @@ classDiagram
     vpadding : int
     vspacing : int
   }
-  Game --> BoxComponent : box_components
-  Game --> MovementComponent : movement_components
-  MovementComponent --> MovementStyle : movement_style
+  ActionEmitterComponent --> ActionEmitter : action_emitter
+  ActionValue --> ActionID : id
   Camera --> PositionComponent : position
-  Game --> PositionComponent : position_components
   Camera --* Game : main_camera
-  Controller --* Game : player_controller
-  GameState --* Game : game_state
+  ECS --* Game : ecs
   RenderSystem --* Renderer : render_system
   UIStyle --* Renderer : ui_style
 ```
@@ -117,11 +122,15 @@ classDiagram
   }
   class __main__ {
   }
+  class actions {
+  }
+  class camera {
+  }
   class components {
   }
-  class controllers {
+  class ecs {
   }
-  class core {
+  class emitters {
   }
   class game {
   }
@@ -135,18 +144,23 @@ classDiagram
   }
   __main__ --> game
   __main__ --> rendering
-  controllers --> core
-  core --> components
+  camera --> components
+  components --> actions
+  ecs --> components
+  emitters --> actions
+  game --> camera
   game --> components
-  game --> controllers
-  game --> core
+  game --> ecs
+  game --> emitters
   game --> systems
+  rendering --> actions
+  rendering --> camera
   rendering --> components
-  rendering --> controllers
-  rendering --> core
+  rendering --> ecs
   rendering --> game
   rendering --> ui
+  systems --> camera
   systems --> components
-  systems --> core
+  systems --> ecs
   systems --> utils
 ```

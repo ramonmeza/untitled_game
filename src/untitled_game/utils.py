@@ -1,3 +1,7 @@
+"""
+Functions that roam around but have no home.
+"""
+
 import math
 
 

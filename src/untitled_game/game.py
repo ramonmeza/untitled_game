@@ -1,9 +1,9 @@
 from typing import Any
 
 from .camera import Camera
-from .components import BoxComponent, ControllerComponent, MovementComponent, PositionComponent
-from .controllers import KeyboardController
+from .components import ActionEmitterComponent, BoxComponent, MovementComponent, PositionComponent
 from .ecs import ECS
+from .emitters import KeyboardActionEmitter
 from .systems import ActionSystem, CameraFollowSystem, MovementSystem
 
 
@@ -22,17 +22,13 @@ class Game:
         return self._player_entity_id
 
     def get_action_value(self, entity_id: int, action: int, default: Any = None) -> Any:
-        controller_comps = self.ecs.get_components_of_type(entity_id, ControllerComponent)
-        if len(controller_comps) == 0:
+        emitter_comps = self.ecs.get_components_of_type(entity_id, ActionEmitterComponent)
+        if len(emitter_comps) == 0:
             return None
 
-        controller_comp = controller_comps[0]
+        emitter_comp = emitter_comps[0]
         value: Any = next(
-            (
-                action_item.value
-                for action_item in controller_comp.actions
-                if action_item.action == action
-            ),
+            (action_item.value for action_item in emitter_comp.actions if action_item.id == action),
             default,
         )
         return value
@@ -42,7 +38,7 @@ class Game:
         self.ecs.add_component(entity_id, PositionComponent, 250, 10)
         self.ecs.add_component(entity_id, BoxComponent, 200, 100)
         self.ecs.add_component(entity_id, MovementComponent)
-        self.ecs.add_component(entity_id, ControllerComponent, KeyboardController())
+        self.ecs.add_component(entity_id, ActionEmitterComponent, KeyboardActionEmitter())
         return entity_id
 
     def update_systems(self, delta_time: float) -> None:
@@ -50,13 +46,13 @@ class Game:
         player_pos: PositionComponent = self.ecs.get_components_of_type(
             self._player_entity_id, PositionComponent
         )[0]
-        controller_components: list[ControllerComponent] = self.ecs.get_all_components_of_type(
-            ControllerComponent
+        emitter_comps: list[ActionEmitterComponent] = self.ecs.get_all_components_of_type(
+            ActionEmitterComponent
         )
-        ActionSystem.update(controller_components)
+        ActionSystem.update(emitter_comps)
 
         movables = self.ecs.get_all_entities_with_components(
-            MovementComponent, PositionComponent, ControllerComponent
+            MovementComponent, PositionComponent, ActionEmitterComponent
         )
         MovementSystem.update(self.ecs, movables, delta_time)
         CameraFollowSystem.update(self.main_camera, player_pos, delta_time)

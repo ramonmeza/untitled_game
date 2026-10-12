@@ -1,6 +1,11 @@
+"""
+Components are data structures which hold data that systems read from and write to. Any data that
+a system depends on should be defined here.
+"""
+
 from dataclasses import dataclass, field
 
-from .controller import Controller, GameAction
+from .actions import ActionEmitter, ActionValue
 
 
 @dataclass
@@ -10,9 +15,9 @@ class BoxComponent:
 
 
 @dataclass
-class ControllerComponent:
-    controller: Controller
-    actions: list[GameAction] = field(default_factory=list[GameAction])
+class ActionEmitterComponent:
+    action_emitter: ActionEmitter
+    actions: list[ActionValue] = field(default_factory=list[ActionValue])
 
 
 @dataclass
