@@ -1,0 +1,33 @@
+name: CI Pipeline
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ci:
+    name: python
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9
+
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
+
+      - name: Lint
+        run: uv run ruff check
+
+      - name: Format
+        run: uv run ruff format --check
+
+      - name: Check circular dependencies
+        run: uv run circular-import-detector src/
