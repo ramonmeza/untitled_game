@@ -14,7 +14,7 @@ def create_empty_world() -> World:
     return world
 
 
-def create_dev_world() -> World:
+def create_dev_world() -> World:  # pragma: no cover
     world: World = World()
     create_player_entity(world)
     return world
