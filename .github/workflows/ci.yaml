@@ -6,7 +6,7 @@ on:
 
 jobs:
   ci:
-    name: python
+    name: Validation
     runs-on: ubuntu-latest
 
     steps:
@@ -29,5 +29,5 @@ jobs:
       - name: Format
         run: uv run ruff format --check
 
-      - name: Check circular dependencies
+      - name: Check for circular dependencies
         run: uv run circular-import-detector src/
