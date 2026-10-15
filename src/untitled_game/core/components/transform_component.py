@@ -7,4 +7,4 @@ from .. import Vector2
 class TransformComponent:
     position: Vector2 = field(default_factory=Vector2)
     rotation: float = 0.0
-    scale: Vector2 = field(default_factory=Vector2)
+    scale: Vector2 = field(default_factory=lambda: Vector2(1, 1))
