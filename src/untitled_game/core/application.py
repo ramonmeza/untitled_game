@@ -18,8 +18,10 @@ class Application:
 
     def run(self) -> None:
         self.initialize()
-        self.loop()
-        self.teardown()
+        try:
+            self.loop()
+        finally:
+            self.teardown()
 
     def initialize(self) -> None:
         self._window.open(self._config.window_width, self._config.window_height)
