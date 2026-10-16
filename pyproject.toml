@@ -29,3 +29,10 @@ dev = [
 
 [tool.ruff]
 line-length=100
+
+[tool.coverage.run]
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 80

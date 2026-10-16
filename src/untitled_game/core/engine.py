@@ -1,7 +1,7 @@
 from time import perf_counter
 
 from ..core.tick_context import TickContext
-from ..game.prefabs import load_world
+from ..game.prefabs import create_dev_world
 from .factories import create_input_source, create_renderer
 from .input import InputHandler, InputState
 from .renderer import Renderer
@@ -15,7 +15,7 @@ class Engine:
         self._input_handler: InputHandler = InputHandler(create_input_source())
         self._renderer: Renderer = create_renderer()
 
-        world: World = load_world()
+        world: World = create_dev_world()
         self._world_runner: WorldRunner = WorldRunner(world)
 
         self.prev_tick_time: float = perf_counter()

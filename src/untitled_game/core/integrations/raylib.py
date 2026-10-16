@@ -40,6 +40,7 @@ class RaylibRenderer:
         raylib.clear_background(raylib.BLACK)
 
     def end_frame(self) -> None:
+        raylib.draw_fps(10, 10)
         raylib.end_drawing()
 
     def is_texture_loaded(self, texture_path: str) -> bool:
@@ -53,6 +54,16 @@ class RaylibRenderer:
     def draw_sprite(self, texture_path: str, x: int, y: int) -> None:
         texture: raylib.Texture = self.load_texture(texture_path)
         raylib.draw_texture(texture, x, y, raylib.WHITE)
+
+    def draw_text(
+        self,
+        text: str,
+        x: int,
+        y: int,
+        font_size: int = 12,
+        color: tuple[int, int, int, int] = (255, 255, 255, 255),
+    ) -> None:
+        raylib.draw_text(text, x, y, font_size, color)
 
 
 class RaylibInputSource:

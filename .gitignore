@@ -10,3 +10,4 @@ wheels/
 .venv
 classes.mmd
 packages.mmd
+.coverage

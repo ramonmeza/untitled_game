@@ -11,8 +11,12 @@ class World:
         self._entities: list[EntityId] = []
         self._components: dict[type, dict[EntityId, object]] = {}
 
+    def get_all_entities(self) -> list[EntityId]:
+        return self._entities.copy()
+
     def create_entity(self, *components: object) -> EntityId:
         entity_id: EntityId = self._next_entity_id
+        self._entities.append(entity_id)
         self._next_entity_id += 1
 
         for component in components:
