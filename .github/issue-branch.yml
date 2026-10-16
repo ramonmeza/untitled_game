@@ -1,0 +1,6 @@
+defaultBranch: 'develop'
+branches:
+  - label: enhancement
+    prefix: feature/
+  - label: bug
+    prefix: bugfix/
