@@ -1,13 +1,7 @@
-from typing import Protocol
-
-from ..components import SpriteComponent, TransformComponent
-from ..renderer import Renderer
-from ..tick_context import TickContext
-from ..world.world import EntityId, World
-
-
-class RenderingSystem(Protocol):
-    def render(self, world: World, tick_context: TickContext, renderer: Renderer) -> None: ...
+from ...components import SpriteComponent, TransformComponent
+from ...renderer import Renderer
+from ...tick_context import TickContext
+from ...world.world import EntityId, World
 
 
 class SpriteRenderingSystem:
