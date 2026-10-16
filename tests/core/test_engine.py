@@ -134,7 +134,7 @@ def test_render_renders_world_with_current_context_and_renderer(
 
 
 def test_update_refreshes_context_ticks_and_renders(
-    engine_dependencies: ,
+    engine_dependencies: EngineDependencyFixture,
 ):
     deps = engine_dependencies
     engine = deps["engine"]
