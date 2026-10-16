@@ -29,11 +29,16 @@ class World:
         return entity_id
 
     def destroy_entity(self, entity_id: EntityId) -> None:
+        if entity_id not in self._entities:
+            return
+
         for component_instances in self._components.values():
             if entity_id not in component_instances:
                 continue
 
             component_instances.pop(entity_id)
+
+        self._entities.remove(entity_id)
 
     def get_component[T: type](self, entity_id: EntityId, comp_type: T) -> T | None:
         component_map = self._components.get(comp_type, None)
