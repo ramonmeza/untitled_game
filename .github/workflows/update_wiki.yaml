@@ -1,0 +1,58 @@
+
+name: Update Wiki
+
+on:
+  push:
+    branch:
+      - main
+
+  pull_request:
+    branch:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  diagrams:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --locked --all-extras --dev
+
+      - name: Generate diagrams
+        run: uv run pyreverse -o mmd src/untitled_game
+
+      - name: Build Wiki Page contents
+        run: |
+          mkdir -p .github/wiki
+
+          {
+            echo '```mermaid'
+            cat classes.mmd
+            echo '```'
+            echo
+            echo '```mermaid'
+            cat packages.mmd
+            echo '```'
+            echo
+          } > .github/wiki/Generated-Diagrams.md
+
+      - name: Publish Wiki
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: spenserblack/actions-wiki@v0.3.0
+        with:
+          path: .github/wiki
