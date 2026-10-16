@@ -1,0 +1,29 @@
+
+name: Sync Wiki to Source
+
+on:
+  gollum:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: wiki-back-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: main
+
+      - name: Pull Wiki pages into source
+        uses: Andrew-Chen-Wang/github-wiki-action@v5
+        with:
+          direction: pull
+          path: .github/wiki

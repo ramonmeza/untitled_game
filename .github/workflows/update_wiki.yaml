@@ -49,7 +49,7 @@ jobs:
             cat packages.mmd
             echo '```'
             echo
-          } > wiki/Architecture.md
+          } > wiki/Generated Diagrams.md
       - name: Publish Wiki
         uses: spenserblack/actions-wiki@v0.3.0
         with:
