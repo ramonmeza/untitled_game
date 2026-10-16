@@ -38,8 +38,6 @@ jobs:
 
       - name: Build Wiki Page contents
         run: |
-          mkdir -p wiki
-
           {
             echo '```mermaid'
             cat classes.mmd
@@ -49,8 +47,8 @@ jobs:
             cat packages.mmd
             echo '```'
             echo
-          } > wiki/Generated-Diagrams.md
+          } > .github/wiki/Generated-Diagrams.md
       - name: Publish Wiki
         uses: spenserblack/actions-wiki@v0.3.0
         with:
-          path: wiki
+          path: .github/wiki
