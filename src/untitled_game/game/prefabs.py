@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from ..core import Vector2
 from ..core.components import SpriteComponent, TransformComponent
 from ..core.world.world import World
@@ -8,7 +6,7 @@ from ..core.world.world import World
 def create_player_entity(world: World) -> None:
     world.create_entity(
         TransformComponent(Vector2(300, 300), 45.0),
-        SpriteComponent(Path("assets") / "textures" / "colorful_pyramid.png"),
+        SpriteComponent(r"assets\textures\colorful_pyramid.png"),
     )
 
 
