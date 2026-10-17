@@ -18,5 +18,6 @@ class SpriteRenderingSystem:
 
             x: int = int(tranform_comp.position.x)
             y: int = int(tranform_comp.position.y)
+            rotation: float = float(tranform_comp.rotation)
             sprite_path = sprite_comp.sprite_path
-            renderer.draw_sprite(sprite_path, x, y)
+            renderer.draw_sprite(sprite_path, x, y, rotation)
