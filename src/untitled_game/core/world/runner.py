@@ -1,3 +1,7 @@
+from untitled_game.core.systems.gameplay_systems.sinewave_movement_syste import (
+    SineWaveMovementSystem,
+)
+
 from ..renderer import Renderer
 from ..systems import GameplaySystem, RenderingSystem
 from ..systems.rendering_systems import SpriteRenderingSystem
@@ -7,7 +11,7 @@ from .world import World
 
 class WorldRunner:
     def __init__(self, world: World) -> None:
-        self._gameplay_systems: list[GameplaySystem] = []
+        self._gameplay_systems: list[GameplaySystem] = [SineWaveMovementSystem()]
         self._rendering_systems: list[RenderingSystem] = [SpriteRenderingSystem()]
         self._world: World = world
 
@@ -17,7 +21,7 @@ class WorldRunner:
 
     def tick(self, tick_context: TickContext) -> None:
         for system in self._gameplay_systems:
-            system.update(tick_context)
+            system.update(self._world, tick_context)
 
     def render(self, tick_context: TickContext, renderer: Renderer) -> None:
         renderer.begin_frame()
