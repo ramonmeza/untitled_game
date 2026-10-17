@@ -36,3 +36,12 @@ source = ["src"]
 [tool.coverage.report]
 show_missing = true
 fail_under = 80
+
+[tool.pytest]
+testpaths = ["tests"]
+addopts = [
+    "--cov=untitled_game",
+    "--strict-markers",
+    "-rA",
+    "-vv",
+]
