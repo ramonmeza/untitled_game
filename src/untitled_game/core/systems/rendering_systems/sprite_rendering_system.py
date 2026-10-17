@@ -6,13 +6,15 @@ from ...world.world import EntityId, World
 
 class SpriteRenderingSystem:
     def render(self, world: World, tick_context: TickContext, renderer: Renderer) -> None:
-        entities: list[EntityId] = world.query(TransformComponent, SpriteComponent)
+        entities: list[EntityId] = world.query_by_component_types(
+            TransformComponent, SpriteComponent
+        )
         for entity in entities:
-            tranform_comp = world.get_component(entity, TransformComponent)
+            tranform_comp = world.get_component_by_type(entity, TransformComponent)
             if tranform_comp is None:
                 continue
 
-            sprite_comp = world.get_component(entity, SpriteComponent)
+            sprite_comp = world.get_component_by_type(entity, SpriteComponent)
             if sprite_comp is None:
                 continue
 
