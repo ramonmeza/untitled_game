@@ -48,12 +48,12 @@ class RaylibRenderer:
 
     def load_texture(self, texture_path: str) -> raylib.Texture:
         if not self.is_texture_loaded(texture_path):
-            self._loaded_textures[texture_path] = raylib.load_texture(texture_path)
+            self._loaded_textures[texture_path] = raylib.load_texture(str(texture_path))
         return self._loaded_textures[texture_path]
 
-    def draw_sprite(self, texture_path: str, x: int, y: int) -> None:
+    def draw_sprite(self, texture_path: str, x: int, y: int, rotation: float) -> None:
         texture: raylib.Texture = self.load_texture(texture_path)
-        raylib.draw_texture(texture, x, y, raylib.WHITE)
+        raylib.draw_texture_ex(texture, (x, y), rotation, 1.0, raylib.WHITE)
 
     def draw_text(
         self,
