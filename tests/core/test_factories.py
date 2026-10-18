@@ -1,6 +1,6 @@
 import pytest
 
-import untitled_game.core.factories as test_module
+from untitled_game.core import factories
 from untitled_game.core.integrations.raylib import (
     RaylibInputSource,
     RaylibRenderer,
@@ -14,7 +14,7 @@ from untitled_game.core.integrations.raylib import (
     ids=("raylib",),
 )
 def test_create_input_source_returns_implementation_type(impl_cls: type) -> None:
-    assert isinstance(test_module.create_input_source(), impl_cls)
+    assert isinstance(factories.create_input_source(), impl_cls)
 
 
 @pytest.mark.parametrize(
@@ -23,7 +23,7 @@ def test_create_input_source_returns_implementation_type(impl_cls: type) -> None
     ids=("raylib",),
 )
 def test_create_renderer_returns_implementation_type(impl_cls: type) -> None:
-    assert isinstance(test_module.create_renderer(), impl_cls)
+    assert isinstance(factories.create_renderer(), impl_cls)
 
 
 @pytest.mark.parametrize(
@@ -32,4 +32,4 @@ def test_create_renderer_returns_implementation_type(impl_cls: type) -> None:
     ids=("raylib",),
 )
 def test_create_window_returns_implementation_type(impl_cls: type) -> None:
-    assert isinstance(test_module.create_window("Mock Title"), impl_cls)
+    assert isinstance(factories.create_window("Mock Title"), impl_cls)
