@@ -68,15 +68,12 @@ class RaylibRenderer:
 
 class RaylibInputSource:
     def _set_controller_state(self, state: ControllerState) -> None:
-        # modify controller_state here
         pass
 
     def _set_keyboard_state(self, state: KeyboardState) -> None:
-        # modify keyboard_state here
         state.keys[KeyboardKey.W] = raylib.is_key_down(raylib.KeyboardKey.KEY_W)
 
     def _set_mouse_state(self, state: MouseState) -> None:
-        # modify mouse_state here
         state.buttons[MouseButton.LEFT] = raylib.is_mouse_button_down(
             raylib.MouseButton.MOUSE_BUTTON_LEFT
         )

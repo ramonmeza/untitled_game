@@ -1,3 +1,5 @@
+from typing import cast
+
 from ...components import SpriteComponent, TransformComponent
 from ...renderer import Renderer
 from ...tick_context import TickContext
@@ -10,14 +12,12 @@ class SpriteRenderingSystem:
             TransformComponent, SpriteComponent
         )
         for entity in entities:
-            tranform_comp = world.get_component_by_type(entity, TransformComponent)
-            if tranform_comp is None:
-                continue
-
-            sprite_comp = world.get_component_by_type(entity, SpriteComponent)
-            if sprite_comp is None:
-                continue
-
+            tranform_comp = cast(
+                TransformComponent, world.get_component_by_type(entity, TransformComponent)
+            )
+            sprite_comp = cast(
+                SpriteComponent, world.get_component_by_type(entity, SpriteComponent)
+            )
             x: int = int(tranform_comp.position.x)
             y: int = int(tranform_comp.position.y)
             sprite_path = sprite_comp.sprite_path
